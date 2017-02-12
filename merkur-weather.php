@@ -162,7 +162,7 @@ class MWS_LastRecordsTable
 		$select=rtrim($select, ', ')." "; //remove last ',' from previous loop
 		
 		$query.=$select;
-		$query.="FROM " . $this->table . " WHERE 1 ORDER BY record_datetime DESC LIMIT 0,";
+		$query.="FROM " . $this->table . " WHERE 1 ORDER BY uid DESC LIMIT 0,";
 		$query.=$this->numRows;
 		
 		$this->data = $wpdb->get_results($query);
