@@ -98,6 +98,51 @@ class MWS_AverageValue extends MWS
 
 }
 
+class MWS_LastRecordsTable
+{
+	public $numRows;
+	public $columns; //=array
+	public $html;
+}
+
+class MWS_WindDirection
+{
+	public degree;
+	public when;
+	public compassPointNameShort;
+	public compassPointNameLong;
+	
+	public function GetCompassPointName($type)
+	{
+		/*
+		http://stackoverflow.com/a/7490772
+		Divide the angle by 22.5 because 360deg/16 directions = 22.5deg/direction change.
+		Add .5 so that when you truncate the value you can break the 'tie' between the change threshold.
+		Truncate the value using integer division (so there is no rounding).
+		Directly index into the array and print the value (mod 16).
+		*/
+		$namesShort={"N","NNO","NO","ONO","O","OSO", "SO", "SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"};
+		$namesLong={"Nord", "Nord-Nordost", "Nordost", "Ost-Nordost", "Ost", "Ost-Südost", "Südost",
+		 "Süd-Südost", "Süd", "Süd-Südwest", "Südwest", "West-Südwest", "West", "West-Südwest", "West", 
+		 "West-Nordwest", "Nordwest", "Nord-Nordwest"};
+		$val = ($this->degree / 22.5) + 0.5;
+		$val = round($angle);
+		if ($type="short")
+			return $namesShort[$val % 16];
+		else 
+			return $namesLong[$val % 16];
+			
+	}
+	
+	public function __construct($degree, $when)
+	{
+		$this->degree = $degree;
+		$this->when = $when;
+	}
+	
+}
+
+
 function MWS_lastWindSpeed()
 {
 		$now = new DateTime('now');
