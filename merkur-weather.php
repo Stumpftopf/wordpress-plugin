@@ -107,10 +107,10 @@ class MWS_LastRecordsTable
 
 class MWS_WindDirection
 {
-	public degree;
-	public when;
-	public compassPointNameShort;
-	public compassPointNameLong;
+	public $degree;
+	public $when;
+	public $compassPointNameShort;
+	public $compassPointNameLong;
 	
 	public function GetCompassPointName($type)
 	{
@@ -121,10 +121,10 @@ class MWS_WindDirection
 		Truncate the value using integer division (so there is no rounding).
 		Directly index into the array and print the value (mod 16).
 		*/
-		$namesShort={"N","NNO","NO","ONO","O","OSO", "SO", "SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"};
-		$namesLong={"Nord", "Nord-Nordost", "Nordost", "Ost-Nordost", "Ost", "Ost-Südost", "Südost",
+		$namesShort=array("N","NNO","NO","ONO","O","OSO", "SO", "SSO","S","SSW","SW","WSW","W","WNW","NW","NNW");
+		$namesLong=array("Nord", "Nord-Nordost", "Nordost", "Ost-Nordost", "Ost", "Ost-Südost", "Südost",
 		 "Süd-Südost", "Süd", "Süd-Südwest", "Südwest", "West-Südwest", "West", "West-Südwest", "West", 
-		 "West-Nordwest", "Nordwest", "Nord-Nordwest"};
+		 "West-Nordwest", "Nordwest", "Nord-Nordwest");
 		$val = ($this->degree / 22.5) + 0.5;
 		$val = round($angle);
 		if ($type="short")
@@ -198,7 +198,7 @@ function MWS_printSet($number, $begin)
 }
 function lastTenRecords()
 {
-	$now = new DateTime('@1486766402'); //dummy value
+	$now = new DateTime('now'); //dummy value
 	return(MWS_printSet(10, $now));
 }
 
