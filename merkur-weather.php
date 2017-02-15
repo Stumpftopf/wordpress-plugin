@@ -9,6 +9,31 @@
    */
 defined( 'ABSPATH' ) or die( 'Must be run as a wordpress plugin' );
 //echo "Test ;)";
+require_once('measurements.php');
+global $wpdb;
+
+$table_name = $wpdb->prefix . "weather_merkur2"; 
+$directions_nordost=array();
+$directions_nordost[0] = array(20, 50); //NO easy
+$directions_nordost[1] = array(10, 60); //NO moderate
+
+$speeds = array(18,25);
+
+$directions_west=array();
+$directions_west[0] = array(220, 300); //W easy
+$directions_west[1] = array(181, 330); //W moderate
+
+
+$nordost = new Takeoff($speeds, $directions_nordost);
+$west=new Takeoff($speeds, $directions_west);
+date_default_timezone_set('Europe/Berlin');
+
+
+
+
+
+
+
 
 class MWS
 {
@@ -115,7 +140,30 @@ class MWS_LastRecordsTable
 		foreach ($this->columns as $header)
 		{
 			$h.="<th>";
-			$h.=$header;
+			switch($header)
+			{
+				case "wind_speed":
+				$h.="Geschwindigkeit"; 
+				break;
+				
+				case "wind_maxspeed":
+				$h.="Böe"; 
+				break;
+				
+				case "wind_direction":
+				$h.="Richtung"; 
+				break;
+				
+				
+				case "record_datetime":
+				$h.="Zeit"; 
+				break;
+				
+				default: 
+				$h.=$header;
+				break;
+			}
+			
 			$h.="</th>";
 		}
 		
@@ -127,16 +175,39 @@ class MWS_LastRecordsTable
 			
 			foreach ($this->data[$i] as $key => $value)
 			{
-				$h.="<td>";
+				//$h.="<td>";
 				if ($key == 'wind_direction')
 				{
-					$h.=$value."° ";
-					$dir = new MWS_WindDirection($value);
-					$h.=$dir->getCompassPointName('short')." ";
+					$h.="<td>";
+					$dir = new Wind_direction($value);
+					
+					$h.=$dir->svg_arrow."&nbsp;";
+					$h.=$dir->value.$dir->unit." ";
+					$h.=$dir->name_short;
+					
 				} 
-				else
+				
+				else if ($key == 'wind_speed' or $key == 'wind_maxspeed')
+				{
+					
+					$speed = new Wind_speed($value);
+					$h.='<td style="background-color: '.$speed->color.';">';
+					$h.=$speed->value." ";
+					$h.=$speed->unit;
+				
+				}
+				else if ($key == 'record_datetime')
+				{
+					$h.="<td>";
 					$h.=$value;
-				$h.="</td>";
+				
+				}
+				else
+				{
+					$h.="<td>";
+					$h.=$value;
+					
+				}$h.="</td>";
 			}
 			
 			$h.="</tr>";
@@ -180,42 +251,6 @@ class MWS_LastRecordsTable
 	}
 }
 
-class MWS_WindDirection
-{
-	public $degree;
-	
-	public $compassPointNameShort;
-	public $compassPointNameLong;
-	
-	public function getCompassPointName($type)
-	{
-		/*
-		http://stackoverflow.com/a/7490772
-		Divide the angle by 22.5 because 360deg/16 directions = 22.5deg/direction change.
-		Add .5 so that when you truncate the value you can break the 'tie' between the change threshold.
-		Truncate the value using integer division (so there is no rounding).
-		Directly index into the array and print the value (mod 16).
-		*/
-		$namesShort=array("N","NNO","NO","ONO","O","OSO", "SO", "SSO","S","SSW","SW","WSW","W","WNW","NW","NNW");
-		$namesLong=array("Nord", "Nord-Nordost", "Nordost", "Ost-Nordost", "Ost", "Ost-Südost", "Südost",
-		 "Süd-Südost", "Süd", "Süd-Südwest", "Südwest", "West-Südwest", "West", "West-Südwest", "West", 
-		 "West-Nordwest", "Nordwest", "Nord-Nordwest");
-		$val = ($this->degree / 22.5) + 0.5;
-		$val = intval($val);
-		if ($type="short")
-			return $namesShort[$val % 16];
-		else 
-			return $namesLong[$val % 16];
-			
-	}
-	
-	public function __construct($degree)
-	{
-		$this->degree = $degree;
-		
-	}
-	
-}
 
 
 function MWS_lastWindSpeed()
