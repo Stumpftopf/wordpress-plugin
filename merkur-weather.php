@@ -198,8 +198,10 @@ class MWS_LastRecordsTable
 				}
 				else if ($key == 'record_datetime')
 				{
-					$h.="<td>";
-					$h.=$value;
+                    $h.="<td>";
+                    $time = strtotime($value);
+                    $time->setTimeZone(new DateTimeZone('Europe/Berlin'));
+					$h.= date("d.m. H:i", $time);
 				
 				}
 				else
