@@ -143,7 +143,10 @@ class MWS_LastRecordsTable
 			switch($header)
 			{
 				case "wind_speed":
-				$h.="Geschwindigkeit"; 
+				if ( wp_is_mobile)
+					$h.='&#x2300;'; //"average" sign
+				else
+					$h.="Windgeschwindigkeit"; 
 				break;
 				
 				case "wind_maxspeed":
@@ -182,7 +185,8 @@ class MWS_LastRecordsTable
 					$dir = new Wind_direction($value);
 					
 					$h.=$dir->svg_arrow."&nbsp;";
-					$h.=$dir->value.$dir->unit." ";
+					if (!wp_is_mobile())
+						$h.=$dir->value.$dir->unit." ";
 					$h.=$dir->name_short;
 					
 				} 
