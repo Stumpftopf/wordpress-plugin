@@ -143,7 +143,7 @@ class MWS_LastRecordsTable
 			switch($header)
 			{
 				case "wind_speed":
-				if ( wp_is_mobile)
+				if ( wp_is_mobile())
 					$h.='&#x2300;'; //"average" sign
 				else
 					$h.="Windgeschwindigkeit"; 
@@ -154,7 +154,10 @@ class MWS_LastRecordsTable
 				break;
 				
 				case "wind_direction":
-				$h.="Richtung"; 
+				if (wp_is_mobile())
+					$h.='°';	
+				else	
+					$h.="Richtung"; 
 				break;
 				
 				
@@ -186,8 +189,10 @@ class MWS_LastRecordsTable
 					
 					$h.=$dir->svg_arrow."&nbsp;";
 					if (!wp_is_mobile())
+					{
 						$h.=$dir->value.$dir->unit." ";
-					$h.=$dir->name_short;
+						$h.=$dir->name_short;
+					}
 					
 				} 
 				
@@ -200,6 +205,7 @@ class MWS_LastRecordsTable
 					$h.=$speed->unit;
 				
 				}
+
 				else if ($key == 'record_datetime')
 				{
                    			$h.="<td>";
@@ -207,7 +213,10 @@ class MWS_LastRecordsTable
 					$time->setTimeZone('Europe/Berlin');
 					if (date('I') == 0)
 				 		$time->add(new DateInterval('PT1H'));
-				 	$h.= $time->format('H:i');
+					if (wp_is_mobile()) 
+						$h.= $time->format('H:i');
+					else
+						$h.= $time->format('m.d.Y H:i');
 
 				}
 				else
