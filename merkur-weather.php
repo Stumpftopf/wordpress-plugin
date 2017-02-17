@@ -16,47 +16,96 @@ require_once ('measurements.php');
 
 function lastTenRecords()
 {
-global $wpdb;
-$table_name = $wpdb->prefix . "weather_merkur2";
-$directions_nordost = array();
-$directions_nordost[0] = array(
-    20,
-    50
-); //NO easy
-$directions_nordost[1] = array(
-    10,
-    60
-); //NO moderate
-$speeds = array(
-    18,
-    25
-);
-$directions_west = array();
-$directions_west[0] = array(
-    220,
-    300
-); //W easy
-$directions_west[1] = array(
-    180,
-    330
-); //W moderate
+    global $wpdb;
+    $table_name = $wpdb->prefix . "weather_merkur2";
+    $directions_nordost = array();
+    $directions_nordost[0] = array(
+        20,
+        50
+    ); //NO easy
+    $directions_nordost[1] = array(
+        10,
+        60
+    ); //NO moderate
+    $speeds = array(
+        18,
+        25
+    );
+    $directions_west = array();
+    $directions_west[0] = array(
+        220,
+        300
+    ); //W easy
+    $directions_west[1] = array(
+        180,
+        330
+    ); //W moderate
 
-$nordost = new Takeoff("Nordost", $speeds, $directions_nordost);
-$west = new Takeoff("West", $speeds, $directions_west);
-$takeoffs = array($nordost, $west);
-date_default_timezone_set('Europe/Berlin');
-    $recs = new MWS_LastRecordsTable(array(
-        "wind_direction",
-        "wind_speed",
-        "wind_maxspeed",
-        "record_datetime"
-    ) , 10, $takeoffs);
-    return $recs->html;
+    $nordost = new Takeoff("Nordost", $speeds, $directions_nordost);
+    $west = new Takeoff("West", $speeds, $directions_west);
+    $takeoffs = array($nordost, $west);
+    date_default_timezone_set('Europe/Berlin');
+        $recs = new MWS_LastRecordsTable(array(
+            "wind_direction",
+            "wind_speed",
+            "wind_maxspeed",
+            "record_datetime"
+        ) , 10, $takeoffs);
+        return $recs->html;
 }
 
+function MWS_10MAverage()
+{
+    $begin = new DateTime(); 
+    
+    $begin->sub(new DateInterval('PT10M'));
+    $end = new DateTime(); 
+    $avg = new MWS_AverageValue("wind_speed", "km/h", $begin, $end);
+    if ($avg->value == "")
+        return ("Keine Daten verfügbar");
+    else
+    return $avg->value . " " . $avg->unit;
+}
+
+function MWS_20MAverage() 
+{
+    $begin = new DateTime(); 
+    
+    $begin->sub(new DateInterval('PT60M'));
+    $end = new DateTime(); 
+    $avg = new MWS_AverageValue("wind_speed", "km/h", $begin, $end);
+    if ($avg->value == "")
+        return ("Keine Daten verfügbar");
+    else
+    return $avg->value . " " . $avg->unit;
+}
+
+function MWS_120MAverage()
+{
+    $begin = new DateTime(); 
+    
+    $begin->sub(new DateInterval('PT120M'));
+    $end = new DateTime(); 
+    $avg = new MWS_AverageValue("wind_speed", "km/h", $begin, $end);
+    if ($avg->value == "")
+        return ("Keine Daten verfügbar");
+    else
+    return $avg->value . " " . $avg->unit;
+}
+
+
+
+//TODO use parameters and less shortcodes
 add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
-add_shortcode('last_average', 'MWS_lastAverage');
-add_shortcode('lasttentable', 'lastTenRecords');
+
+//TODO use parameters and less shortcodes
+add_shortcode('WindspeedLastTenMinutes', 'MWS_10MAverage');
+add_shortcode('WindspeedLastTwentyMinutes', 'MWS_20MAverage');
+add_shortcode('WindspeedLastOneHundredTwentyMinutes', 'MWS_120MAverage');
+
+
+//TODO parameter for # of records
+add_shortcode('lastrecords', 'lastTenRecords');
 
 
 
@@ -67,6 +116,7 @@ add_shortcode('lasttentable', 'lastTenRecords');
 class MWS
 	
 {
+    
     public $table = "wp_weather_merkur2";
 
     public $record_type;
@@ -91,12 +141,10 @@ class MWS
     {
         $this->record_type = $record_type;
         $this->unit = $unit;
+        
     }
 
-    public function getData()
-    {
-        $this->value = $wpdb->get_var($this->query);
-    }
+   
 }
 
 class MWS_SingleValue extends MWS
@@ -133,6 +181,7 @@ class MWS_AverageValue extends MWS
         $this->end = $end;
         $this->sql_where = "record_datetime BETWEEN FROM_UNIXTIME(" . $this->begin->getTimestamp() . ") AND FROM_UNIXTIME(" . $this->end->getTimestamp() . ")";
         $this->query = "SELECT AVG(" . $this->record_type . ") FROM " . $this->table . " WHERE " . $this->sql_where . " ORDER BY " . $this->sql_orderby;
+        
         $this->value = $wpdb->get_var($this->query);
     }
 }
@@ -169,20 +218,7 @@ class MWS_LastRecordsTable
             case "wind_maxspeed":
                 $h.= "Böe";
                 break;
-function lastTenRecords()
-{
-    $recs = new MWS_LastRecordsTable(array(
-        "wind_direction",
-        "wind_speed",
-        "wind_maxspeed",
-        "record_datetime"
-    ) , 10);
-    return $recs->html;
-}
 
-add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
-add_shortcode('last_average', 'MWS_lastAverage');
-add_shortcode('lasttentable', 'lastTenRecords');
             case "wind_direction":
                 if (wp_is_mobile()) $h.= '°';
                 else $h.= "Richtung";
@@ -239,14 +275,15 @@ add_shortcode('lasttentable', 'lastTenRecords');
   
                     $time->setTimeZone(new DateTimeZone('Europe/Berlin'));
                     
-                    if (date('I') == 0) $time->add(new DateInterval('PT1H'));
+                    if (date('I') == 0) 
+                        $time->add(new DateInterval('PT1H'));
                     
                     $h.= "<td>";
                    
                     if (wp_is_mobile())
-                        $h.="Vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.";
+                        $h.="vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.";
                     else
-                        $h.=$time->format('m.d.Y H:i') . "<br />(vor ". floor((time() - $time->getTimestamp()) / 60) . " Minuten)";
+                        $h.=$time->format('m.d. H:i') . "<br />(vor ". floor((time() - $time->getTimestamp()) / 60) . " Minuten)";
                 }
                 else
                 {
@@ -294,6 +331,7 @@ add_shortcode('lasttentable', 'lastTenRecords');
     
 }
 
+
 function MWS_lastWindSpeed()
 {
     $now = new DateTime('now');
@@ -301,13 +339,6 @@ function MWS_lastWindSpeed()
     return $wind->value . " " . $wind->unit;
 }
 
-function MWS_lastAverage()
-{
-    $begin = new DateTime('@1486765140'); //dummy
-    $end = new DateTime('@1486766402'); //dummy
-    $avg = new MWS_AverageValue("wind_speed", "km/h", $begin, $end);
-    return $avg->value . " " . $avg->unit;
-}
 
 
 
