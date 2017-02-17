@@ -60,6 +60,7 @@ class Wind_Direction extends Measurement
         $this->name_long = $this->getCompassPointName("long");
         $this->name_short = $this->GetCompassPointName('short');
         $this->svg_arrow = $this->GetWindDirectionArrow();
+        
     }
     private function GetCompassPointName($type)
     {
@@ -129,13 +130,27 @@ class Wind_Direction extends Measurement
 
     {
         foreach($takeoffs as $takeoff)
-        {
-            if ($this->value >= $takeoff->winddirection_levels[1][0] && $this->value <= $takeoff->winddirection_levels[1][1]); //return takeoff if value is within boundaries
-            {
+        { 
+            if (($this->value > $takeoff->winddirection_levels[1][0]) && ($this->value < $takeoff->winddirection_levels[1][1])) //return takeoff if value is within boundaries
+            {   
+               
+               
+                $this->best_takeoff = $takeoff;
+                
+                if (($this->value > $takeoff->winddirection_levels[1][0]) && ($this->value < $takeoff->winddirection_levels[1][1])) //check if we are also within the easy zone
+                {
+                    $this->color = $this->trafficlight['green'];
+                }
+                else 
+                    $this->color = $this->trafficlight['yellow'];; //we're not in the green zone, but still good.
                 return $takeoff;
+                
             }
         }
-        return -1; //no takeoff suitable;
+        //no takeoff suitable;
+        $this->best_takeoff = -1;
+        $this->color = $this->$this->trafficlight['red'];
+        return -1; 
     }
 }
 class Temperature extends Measurement
@@ -171,15 +186,17 @@ class Wind_Chill extends Measurement
 class Takeoff
 
 {
+    public $name;
     // array
     public $windspeed_levels;
 
     // 2d array
     public $winddirection_levels;
 
-    public function __construct($speeds, $directions)
+    public function __construct($name, $speeds, $directions)
 
     {
+        $this->name=$name;
         $this->windspeed_levels = $speeds;
         $this->winddirection_levels = $directions;
     }

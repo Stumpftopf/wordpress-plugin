@@ -10,6 +10,12 @@ License: CC BY 4.0
 defined('ABSPATH') or die('Must be run as a wordpress plugin');
 require_once ('measurements.php');
 
+
+
+
+
+function lastTenRecords()
+{
 global $wpdb;
 $table_name = $wpdb->prefix . "weather_merkur2";
 $directions_nordost = array();
@@ -31,13 +37,33 @@ $directions_west[0] = array(
     300
 ); //W easy
 $directions_west[1] = array(
-    181,
+    180,
     330
 ); //W moderate
 
-$nordost = new Takeoff($speeds, $directions_nordost);
-$west = new Takeoff($speeds, $directions_west);
+$nordost = new Takeoff("Nordost", $speeds, $directions_nordost);
+$west = new Takeoff("West", $speeds, $directions_west);
+$takeoffs = array($nordost, $west);
 date_default_timezone_set('Europe/Berlin');
+    $recs = new MWS_LastRecordsTable(array(
+        "wind_direction",
+        "wind_speed",
+        "wind_maxspeed",
+        "record_datetime"
+    ) , 10, $takeoffs);
+    return $recs->html;
+}
+
+add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
+add_shortcode('last_average', 'MWS_lastAverage');
+add_shortcode('lasttentable', 'lastTenRecords');
+
+
+
+
+
+
+
 class MWS
 	
 {
@@ -121,6 +147,8 @@ class MWS_LastRecordsTable
     public $html;
 
     public $table = "wp_weather_merkur2";
+
+    public $takeoffs;
     
     private $data;
 
@@ -141,7 +169,20 @@ class MWS_LastRecordsTable
             case "wind_maxspeed":
                 $h.= "Böe";
                 break;
+function lastTenRecords()
+{
+    $recs = new MWS_LastRecordsTable(array(
+        "wind_direction",
+        "wind_speed",
+        "wind_maxspeed",
+        "record_datetime"
+    ) , 10);
+    return $recs->html;
+}
 
+add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
+add_shortcode('last_average', 'MWS_lastAverage');
+add_shortcode('lasttentable', 'lastTenRecords');
             case "wind_direction":
                 if (wp_is_mobile()) $h.= '°';
                 else $h.= "Richtung";
@@ -170,8 +211,11 @@ class MWS_LastRecordsTable
 
                 if ($key == 'wind_direction')
                 {
-                    $h.= "<td>";
-                    $dir = new Wind_direction($value);
+                    
+                    
+                    $dir = new Wind_direction($value); 
+                    $dir->GetBestTakeoff($this->takeoffs);
+                    $h.= '<td style="background-color: ' . $dir->color . ';"> '; 
                     $h.= $dir->svg_arrow . "&nbsp;";
                     if (!wp_is_mobile())
                     {
@@ -190,12 +234,19 @@ class MWS_LastRecordsTable
                 else
                 if ($key == 'record_datetime')
                 {
-                    $h.= "<td>";
+                    
                     $time = new DateTime($value);
-                    $time->setTimeZone('Europe/Berlin');
-                    if (date('I') == 0) $time->add(new DateInterval('PT1H'));
-                    if (wp_is_mobile()) $h.= $time->format('H:i');
-                    else $h.= $time->format('m.d.Y H:i');
+  
+                    $time->setTimeZone(new DateTimeZone('Europe/Berlin'));
+                    
+                    $h.= "<td>";
+                   //if (wp_is_mobile()) $h.= $time->format('H:i');
+                   // else $h.= $time->format('m.d.Y H:i');
+                    //($time->getTimestamp() < strtotime("-11 minutes")
+                    if (wp_is_mobile())
+                        $h.="Vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.";
+                    else
+                        $h.=$time->format('m.d.Y H:i') . "<br />(vor ". floor((time() - $time->getTimestamp()) / 60) . " Minuten)";
                 }
                 else
                 {
@@ -231,13 +282,16 @@ class MWS_LastRecordsTable
         $this->data = $wpdb->get_results($query);
     }
 
-    public function __construct($columns, $numRows)
+    public function __construct($columns, $numRows, $takeoffs)
     {
         $this->columns = $columns;
         $this->numRows = $numRows;
+        $this->takeoffs = $takeoffs;
         $this->pollDatabase();
         $this->buildHTML();
+        
     }
+    
 }
 
 function MWS_lastWindSpeed()
@@ -255,18 +309,6 @@ function MWS_lastAverage()
     return $avg->value . " " . $avg->unit;
 }
 
-function lastTenRecords()
-{
-    $recs = new MWS_LastRecordsTable(array(
-        "wind_direction",
-        "wind_speed",
-        "wind_maxspeed",
-        "record_datetime"
-    ) , 10);
-    return $recs->html;
-}
 
-add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
-add_shortcode('last_average', 'MWS_lastAverage');
-add_shortcode('lasttentable', 'lastTenRecords');
+
 ?>
