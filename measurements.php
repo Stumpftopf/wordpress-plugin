@@ -149,7 +149,7 @@ class Wind_Direction extends Measurement
         }
         //no takeoff suitable;
         $this->best_takeoff = -1;
-        $this->color = $this->$this->trafficlight['red'];
+        $this->color = $this->trafficlight['red'];
         return -1; 
     }
 }
