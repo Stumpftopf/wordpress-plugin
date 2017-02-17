@@ -54,11 +54,11 @@ function lastTenRecords()
         return $recs->html;
 }
 
-function MWS_10MAverage()
+function MWS_20MAverage()
 {
     $begin = new DateTime(); 
     
-    $begin->sub(new DateInterval('PT10M'));
+    $begin->sub(new DateInterval('PT20M'));
     $end = new DateTime(); 
     $avg = new MWS_AverageValue("wind_speed", "km/h", $begin, $end);
     if ($avg->value == "")
@@ -67,7 +67,7 @@ function MWS_10MAverage()
     return $avg->value . " " . $avg->unit;
 }
 
-function MWS_20MAverage() 
+function MWS_60MAverage() 
 {
     $begin = new DateTime(); 
     
@@ -99,9 +99,9 @@ function MWS_120MAverage()
 add_shortcode('last_windspeed', 'MWS_lastWindSpeed');
 
 //TODO use parameters and less shortcodes
-add_shortcode('WindspeedLastTenMinutes', 'MWS_10MAverage');
 add_shortcode('WindspeedLastTwentyMinutes', 'MWS_20MAverage');
-add_shortcode('WindspeedLastOneHundredTwentyMinutes', 'MWS_120MAverage');
+add_shortcode('WindspeedLastHour', 'MWS_60MAverage');
+add_shortcode('WindspeedLastTwoHours', 'MWS_120MAverage');
 
 
 //TODO parameter for # of records
@@ -182,7 +182,7 @@ class MWS_AverageValue extends MWS
         $this->sql_where = "record_datetime BETWEEN FROM_UNIXTIME(" . $this->begin->getTimestamp() . ") AND FROM_UNIXTIME(" . $this->end->getTimestamp() . ")";
         $this->query = "SELECT AVG(" . $this->record_type . ") FROM " . $this->table . " WHERE " . $this->sql_where . " ORDER BY " . $this->sql_orderby;
         
-        $this->value = $wpdb->get_var($this->query);
+        $this->value = round($wpdb->get_var($this->query), 0);
     }
 }
 
