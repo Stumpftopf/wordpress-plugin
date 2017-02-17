@@ -10,9 +10,9 @@ class Measurement
 
     public $trafficlight = array(
 
-        "green" => "#C8F526",
-        "yellow" => "#FFDB58",
-        "red" => "#FFB093"
+        "green" => "#b0f4b0",
+        "yellow" => "#ffff99",
+        "red" => "#ff9999"
     );
 }
 class Wind_speed extends Measurement
