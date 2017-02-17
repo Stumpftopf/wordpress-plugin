@@ -239,10 +239,10 @@ add_shortcode('lasttentable', 'lastTenRecords');
   
                     $time->setTimeZone(new DateTimeZone('Europe/Berlin'));
                     
+                    if (date('I') == 0) $time->add(new DateInterval('PT1H'));
+                    
                     $h.= "<td>";
-                   //if (wp_is_mobile()) $h.= $time->format('H:i');
-                   // else $h.= $time->format('m.d.Y H:i');
-                    //($time->getTimestamp() < strtotime("-11 minutes")
+                   
                     if (wp_is_mobile())
                         $h.="Vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.";
                     else
