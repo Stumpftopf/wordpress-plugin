@@ -253,11 +253,9 @@ class MWS_LastRecordsTable
                     $dir->GetBestTakeoff($this->takeoffs);
                     $h.= '<td style="background-color: ' . $dir->color . ';"> '; 
                     $h.= $dir->svg_arrow . "&nbsp;";
-                    if (!wp_is_mobile())
-                    {
-                        $h.= $dir->value . $dir->unit . " ";
-                        $h.= $dir->name_short;
-                    }
+                    $h.= $dir->value . $dir->unit . " ";
+                    $h.= $dir->name_short;
+                    
                 }
                 else
                 if ($key == 'wind_speed' or $key == 'wind_maxspeed')
