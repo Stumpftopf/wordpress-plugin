@@ -133,7 +133,7 @@ function write_windrose_javascript()
             ],
             chart: {
                 polar: true,
-                type: 'column'
+                type: 'scatter'
             },
             title: {
                 text: 'Letzte <?php echo $num_records; ?> Windmessungen'
@@ -218,10 +218,10 @@ function write_windrose_javascript()
                     pointPlacement: 'off',
                     pointWidth: 0.03,
                     color: {
-                        linearGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
+                        radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
                         stops: [
                            [0, '#0000ff'],
-                           [1, '#ffffff']
+                           [1, '#f0f0f0']
                         ]
                         },
                     marker: {
