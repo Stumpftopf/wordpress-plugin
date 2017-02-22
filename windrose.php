@@ -27,20 +27,13 @@ function windrose_wrapper()
 
 function write_windrose_container()
 {
-    if (wp_is_mobile())   
-    {   
-        
-        return '<div id="container" style="width: 50%; height: 50%; float: left"></div>';
-    	 
-    	 
-    }
+    if (wp_is_mobile())          
+	return '<div id="container"></div>';
     else 
-    {   
-        
         return '<div id="container" style="width: 600px; height: 600px; margin: 0; float: left"></div>';
         
         
-    }
+
 }
 
 
@@ -144,7 +137,7 @@ function write_windrose_javascript()
             pane: {
             <?php 
             if (wp_is_mobile())
-                echo "size: '25%'";
+                echo "size: '80%'";
             else
                 echo "size: '85%'";
                 
@@ -165,12 +158,12 @@ function write_windrose_javascript()
             },
             yAxis: {
                 min: 0,
-                max: 35,
+                max: 36,
                 endOnTick: false,
                 showLastLabel: true,
-                 title: {
-                    text: 'Windgeschwindigkeit'
-                },
+              
+             
+            
                 labels: {
                     formatter: function () {
                         return this.value + ' km/h';
@@ -190,7 +183,7 @@ function write_windrose_javascript()
                 ]
             },
             from: 0,
-            to: 35
+            to: 36
         }
        
         
