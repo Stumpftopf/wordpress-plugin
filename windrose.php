@@ -118,7 +118,7 @@ function write_windrose_javascript()
         jQuery('#container').highcharts({
             series: [{
                 data: windSpeedData,
-                name: 'Windgeschwindigkeit (Durschnitt)',
+                name: 'Windgeschwindigkeit (Durchschnitt)',
                 color: 
                 {
                     radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
@@ -161,11 +161,11 @@ function write_windrose_javascript()
                 type: 'scatter'
             },
             title: {
-                text: 'Letzte <?php echo $num_records; ?> Windmessungen'
+                text: 'Letzte <?php echo $num_records; ?> Minuten'
             },
             pane: {
             
-            size: '90%'
+            size: '85%'
                 
           
             },
