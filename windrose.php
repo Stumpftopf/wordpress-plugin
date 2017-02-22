@@ -47,8 +47,7 @@ function enqeue_highcharts_scripts()
 {
         
         wp_enqueue_script("highcharts", "https://code.highcharts.com/highcharts.js");
-        wp_enqueue_script("highcharts-more", "https://code.highcharts.com/highcharts-more.js", "highcharts");
-        wp_enqueue_script("highcharts-exporting", "https://code.highcharts.com/modules/exporting.js", "highcharts");
+        wp_enqueue_script("highcharts-more", "https://code.highcharts.com/highcharts-more.js", "highcharts");   
         wp_enqueue_script("json2", "https://cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js");
         
         
@@ -192,7 +191,10 @@ function write_windrose_javascript()
                 from: 0,
                 to: 36
             },
-            
+<?php
+if ($yMax > 36)
+{
+?>
             {
             color: 
                 {
@@ -207,7 +209,10 @@ function write_windrose_javascript()
                 
                 from: 36,
                 to: <?php echo $yMax; ?>
-            },
+             }
+<?php
+}
+?>
         ],
                 
             },
