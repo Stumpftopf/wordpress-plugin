@@ -134,7 +134,7 @@ function write_windrose_javascript()
                 type: 'column'
             },
             title: {
-                text: 'Windmessungen der letzten <?php echo $num_records; ?> Minuten'
+                text: 'Letzte <?php echo $num_records; ?> Windmessungen'
             },
             pane: {
             <?php 
@@ -182,37 +182,25 @@ function write_windrose_javascript()
                     radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
                     stops: 
                     [
+                    
                         [0, '#00E000'], //green
-                        [0.65, '#FFFF00'], //yellow
-                        [1, '#eeaaaa'] //red    
+                        
+                        [<?php echo 23/$yMax; ?>, '#FFFF00'], //yellow
+                        <?php 
+                        if (30/$yMax < 1) 
+                        {
+                        ?>
+                        [<?php echo 30/$yMax; ?>, '#eeaaaa'] //red    
+                        <?php 
+                        }
+                        ?>
                     ]
                 },
                 
                 from: 0,
-                to: 36
-            },
-<?php
-if ($yMax > 36)
-{
-?>
-            {
-            color: 
-                {
-                    radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
-                    stops: 
-                    [
-                        [0, '#eeaaaa'], //red
-                        
-                        [1, '#eeaaa0'] //slightly redder
-                    ]
-                },
-                
-                from: 36,
                 to: <?php echo $yMax; ?>
-             }
-<?php
-}
-?>
+            },
+
         ],
                 
             },
