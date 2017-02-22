@@ -61,6 +61,9 @@ function write_windrose_javascript()
         $speeds = $wpdb->get_col("select wind_speed from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
         $directions = $wpdb->get_col("select wind_direction from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
         $gusts = $wpdb->get_col("select wind_maxspeed from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
+        
+        $yMax =  max($speeds);
+        $yMax += $yMax/10;
         ?>
     <script language="javascript">
         
@@ -158,7 +161,7 @@ function write_windrose_javascript()
             },
             yAxis: {
                 min: 0,
-                max: 36,
+                max: <?php echo $yMax; ?>,
                 endOnTick: false,
                 showLastLabel: true,
               
@@ -172,24 +175,39 @@ function write_windrose_javascript()
                 reversedStacks: false,
                 
         
-        plotBands: [{
-            color: {
-                radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
-                stops: [
-                    [0, '#00E000'], //green
-                    [0.65, '#FFFF00'], //yellow
-                    [0.95, '#eeaaaa'] //red
-                    
-                ]
+        plotBands: 
+        [
+            {
+            color: 
+                {
+                    radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: 
+                    [
+                        [0, '#00E000'], //green
+                        [0.65, '#FFFF00'], //yellow
+                        [1, '#eeaaaa'] //red    
+                    ]
+                },
+                
+                from: 0,
+                to: 36
             },
-            from: 0,
-            to: 36
-        }
-       
-        
-        
-        
-        
+            
+            {
+            color: 
+                {
+                    radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: 
+                    [
+                        [0, '#eeaaaa'], //red
+                        
+                        [1, '#eeaaa0'] //slightly redder
+                    ]
+                },
+                
+                from: 36,
+                to: <?php echo $yMax; ?>
+            },
         ],
                 
             },
