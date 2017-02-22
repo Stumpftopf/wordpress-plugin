@@ -62,6 +62,8 @@ function write_windrose_javascript()
         $gusts = $wpdb->get_col("select wind_maxspeed from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
         
         $yMax =  max($speeds);
+        if ($yMax == 0)
+            $yMax = 1; //avoid division by zero
         $yMax += $yMax/10;
         ?>
     <script language="javascript">
