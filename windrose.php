@@ -12,28 +12,19 @@ License: CC BY 4.0
 
 add_filter('wp_enqueue_scripts','insert_jquery',1);
 add_action( 'wp_enqueue_scripts', 'enqeue_highcharts_scripts');
-
 add_shortcode('windrose', 'windrose_wrapper');
 
 function windrose_wrapper()
 {
-    
-    
     add_action( 'wp_footer', 'write_windrose_javascript');
     return write_windrose_container();
-
 }
 
 
 function write_windrose_container()
 {
-    if (wp_is_mobile())          
+      
 	return '<div id="container"></div>';
-    else 
-        return '<div id="container" style="width: 600px; height: 600px; margin: 0; float: left"></div>';
-        
-        
-
 }
 
 
@@ -45,37 +36,33 @@ wp_enqueue_script('jquery', false, array(), false, false);
 
 function enqeue_highcharts_scripts()
 {
-        
         wp_enqueue_script("highcharts", "https://code.highcharts.com/highcharts.js");
         wp_enqueue_script("highcharts-more", "https://code.highcharts.com/highcharts-more.js", "highcharts");   
         wp_enqueue_script("json2", "https://cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js");
-        
-        
 }
 
 function write_windrose_javascript()
 {
         global $wpdb;
         $num_records = 20;
-        $speeds = $wpdb->get_col("select wind_speed from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
-        $directions = $wpdb->get_col("select wind_direction from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
-        $gusts = $wpdb->get_col("select wind_maxspeed from wp_weather_merkur2 order by uid desc limit 0, " . $num_records . "", 0);
-        
-        $yMax =  max($speeds);
+        $values = $wpdb->get_results("SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 ORDER BY record_datetime DESC LIMIT 0, " . $num_records . "", "ARRAY_A");
+              
+        $yMax =  max(array_column($values, 'wind_maxspeed'));
         if ($yMax == 0)
             $yMax = 1; //avoid division by zero
         $yMax += $yMax/10;
+        $yMax = intval($yMax);
         ?>
     <script language="javascript">
         
-        var windDirection, windSpeed, windGust, windDirectionJSON, windSpeedJSON, windGustJSON, windDataJSON;
+        var windDirection, windSpeed, windGust, windDirectionJSON, windSpeedJSON, windGustJSON, windSpeedData;
         windData = 
         <?php
         echo '"[';
-        for ($i=0; $i<count($directions); $i++)
+        for ($i=0; $i<count($values); $i++)
         {
-            echo $directions[$i];
-            if ($i<(count($directions)-1))
+            echo $values[$i]['wind_direction'];
+            if ($i<(count($values)-1))
                     echo ',';
 
         }
@@ -85,10 +72,10 @@ function write_windrose_javascript()
         
         windSpeed = <?php
         echo '"[';
-        for ($i=0; $i<count($speeds); $i++)
+        for ($i=0; $i<count($values); $i++)
         {
-            echo $speeds[$i];
-            if ($i<(count($speeds)-1))
+            echo $values[$i]['wind_speed'];
+            if ($i<(count($values)-1))
                     echo ',';
 
         }
@@ -98,10 +85,10 @@ function write_windrose_javascript()
         
         windGust = <?php
         echo '"[';
-        for ($i=0; $i<count($gusts); $i++)
+        for ($i=0; $i<count($values); $i++)
         {
-            echo $gusts[$i];
-            if ($i<(count($gusts)-1))
+            echo $values[$i]['wind_maxspeed'];
+            if ($i<(count($values)-1))
                     echo ',';
 
         }
@@ -112,13 +99,17 @@ function write_windrose_javascript()
         windDirectionJSON = JSON.parse(windData);
         windSpeedJSON = JSON.parse(windSpeed);
         windGustJSON = JSON.parse(windGust);
-        windDataJSON = [];
+        windSpeedData = [];
+        windGustData = [];
+        
         for (i = 0; i < windDirectionJSON.length; i++) 
         {
-            windDataJSON.push([ windDirectionJSON[i], windSpeedJSON[i], windGustJSON[i] ]);
+            windSpeedData.push([ windDirectionJSON[i], windSpeedJSON[i]]);
+            windGustData.push([ windDirectionJSON[i], windGustJSON[i]]);
         }
-        console.log(windDataJSON);
-        //windDataJSON.sort(function(a,b) { return a[0] - b[0]; });
+        console.log(windSpeedData);
+        console.log(windGustData);
+        //windSpeedData.sort(function(a,b) { return a[0] - b[0]; });
     </script>
 
     <script>
@@ -126,7 +117,41 @@ function write_windrose_javascript()
         var categories = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
         jQuery('#container').highcharts({
             series: [{
-                data: windDataJSON
+                data: windSpeedData,
+                name: 'Windgeschwindigkeit (Durschnitt)',
+                color: 
+                {
+                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: 
+                    [
+                        [0, '#0000ff'],
+                        [1, '#f0f0f0']
+                    ],     
+                },
+                    marker: 
+                    {
+                        radius: 5
+                    }
+            },
+            {
+                data: windGustData,
+                name: "Windgeschwindigkeit (Böe)",
+                marker: 
+                    {
+                        radius: 2,
+                        symbol: "circle",
+                        
+                    },
+                color: 
+                {
+                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
+                    stops: 
+                    [
+                       [0, '#f00000'],
+                       [1, '#ff0000']
+                    ]
+                },
+                shadow: true, 
             },
            
             
@@ -139,13 +164,10 @@ function write_windrose_javascript()
                 text: 'Letzte <?php echo $num_records; ?> Windmessungen'
             },
             pane: {
-            <?php 
-            if (wp_is_mobile())
-                echo "size: '80%'";
-            else
-                echo "size: '85%'";
+            
+            size: '90%'
                 
-            ?>
+          
             },
            
             xAxis: {
@@ -187,12 +209,12 @@ function write_windrose_javascript()
                     
                         [0, '#00E000'], //green
                         
-                        [<?php echo 23/$yMax; ?>, '#FFFF00'], //yellow
+                        [<?php echo round(23/$yMax, 2); ?>, '#FFFF00'], //yellow
                         <?php 
                         if (30/$yMax < 1) 
                         {
                         ?>
-                        [<?php echo 30/$yMax; ?>, '#eeaaaa'] //red    
+                        [<?php echo round(30/$yMax, 2); ?>, '#eeaaaa'] //red    
                         <?php 
                         }
                         ?>
@@ -210,29 +232,12 @@ function write_windrose_javascript()
                 valueSuffix: ' km/h'
             },
             plotOptions: {
-                series: {
-                    showInLegend: false,
-                    name: 'Windgeschwindigkeit',
-                    shadow: true,
+                series: 
+                {
+                    showInLegend: true,
                     groupPadding: 0,
-                    pointPlacement: 'off',
-                    pointWidth: 0.03,
-                    color: {
-                        radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
-                        stops: [
-                           [0, '#0000ff'],
-                           [1, '#f0f0f0']
-                        ]
-                        },
-                    marker: {
-                        radius: 5
-                        
-                    }
-                    
-                    
-                    
-                     
-                }
+                    pointPlacement: 'on', 
+                },
             }
         });
     });
