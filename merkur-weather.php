@@ -8,7 +8,7 @@ Author: Sebastian Schmied
 License: CC BY 4.0
 */
 defined('ABSPATH') or die('Must be run as a wordpress plugin');
-
 require_once ('measurements.php');
 require_once('records.php');
 require_once('windrose.php');
+require_once('outdated-warning.php');
