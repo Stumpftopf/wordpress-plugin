@@ -45,7 +45,9 @@ function write_windrose_javascript()
 {
         global $wpdb;
         $num_minutes = 20;
-        $values = $wpdb->get_results("SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 WHERE record_datetime > DATE_SUB (CURDATE(), INTERVAL " . $num_minutes . " MINUTE) ORDER BY record_datetime DESC", "ARRAY_A");
+        $query = 'SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 WHERE record_datetime >= NOW() - INTERVAL '.  $num_minutes .' Minute ORDER BY record_datetime DESC';
+        
+        $values = $wpdb->get_results($query, "ARRAY_A");
               
         $yMax =  max(array_column($values, 'wind_maxspeed'));
         if ($yMax == 0)
@@ -206,18 +208,20 @@ function write_windrose_javascript()
                     radialGradient:  {cx: 0.5, cy: 0.5, r: 0.5 },
                     stops: 
                     [
-                    
-                        [0, '#00E000'], //green
+                    <?php 
                         
-                        [<?php echo round(23/$yMax, 2); ?>, '#FFFF00'], //yellow
-                        <?php 
-                        if (30/$yMax < 1) 
-                        {
-                        ?>
-                        [<?php echo round(30/$yMax, 2); ?>, '#eeaaaa'] //red    
-                        <?php 
-                        }
-                        ?>
+                        $yellow = 23;
+                        $red = 30;
+                        echo "[0, '#00e000'],"; //green
+                        
+                        //Apply yellow and red gradients only if needed. So we get a green circle if wind is OK and a mostly red one if stormy.
+                        if ($yellow/$yMax < 1)
+                            echo "[". round($yellow/$yMax, 2) .", '#ffff00'],"; //yellow
+                            
+                        if ($red/$yMax < 1) 
+                            echo "[". round($red/$yMax, 2) .", '#eeaaaa'],"; //red
+                     ?>
+                        
                     ]
                 },
                 
