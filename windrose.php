@@ -49,6 +49,7 @@ function write_windrose_javascript()
         $query_debug = 'SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 ORDER BY record_datetime DESC LIMIT 0, '. $num_minutes; //use this when testing locally
         
         $values = $wpdb->get_results($query, "ARRAY_A");
+        $values = array_reverse($values);
               
         $yMax =  max(array_column($values, 'wind_maxspeed'));
         if ($yMax == 0)
@@ -62,37 +63,9 @@ function write_windrose_javascript()
     jQuery(function () {
         var categories = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
         jQuery('#container').highcharts({
-            series: [{
-                data:
-                [
-                <?php
-                    $size = count($values);
-                    if ($size <= 0)
-                        $size += 1; //divisions ahead
-                    for ($i=0; $i<$size; $i++)
-                    {
-                        $hue = 1 - round($i/$size, 2);
-                        echo "{";
-                            echo "x: ". $values[$i]['wind_direction'].",";
-                            echo "y: ". $values[$i]['wind_speed'].",";
-                            echo "marker: {";
-                                echo "fillColor: 'rgba(0,0,255," . $hue . ")',";
-                                echo "radius: " . round(1-($i+1)/$size ,2)*7;
-                            echo "}";
-                            
-                        echo "},";
-                    }
-                ?>
-                ],
-                name: 'Windgeschwindigkeit (Durchschnitt)',
-                color: 'rgba(0,0,255, 1)',
-              
-                    marker: 
-                    {
-                        radius: 10
-                    }
-            },
+            series: [
             {
+                
                 data:
                 [
                 <?php
@@ -102,13 +75,13 @@ function write_windrose_javascript()
                     for ($i=0; $i<$size; $i++)
                     {   
                        
-                        $hue = 1 - round($i/$size, 2);
+                        $hue = round($i/$size, 2);
                         echo "{";
                             echo "x: ". $values[$i]['wind_direction'].",";
                             echo "y: ". $values[$i]['wind_maxspeed'].",";
                             echo "marker: {";
                                 echo "fillColor: 'rgba(255,0,0," . $hue . ")',";
-                                echo "radius: " . round(1-($i+1)/$size ,2)*4;
+                                echo "radius: " . round(($i+1)/$size ,2)*6;
                                 echo "}";
                         echo "},";
                         
@@ -117,14 +90,50 @@ function write_windrose_javascript()
                 ?>
                 ],
                 name: "Windgeschwindigkeit (Böe)",
+                
                 marker: 
                     {
                         radius: 2,
                         symbol: "circle",
+                        lineColor: '#ffffff',
+                        lineWidth: '0.6',
                         
                     },
                 color: 'rgba(255,0,0,1',
                 shadow: true, 
+                
+            }, {
+                data:
+                [
+                <?php
+                    $size = count($values);
+                    if ($size <= 0)
+                        $size += 1; //divisions ahead
+                    for ($i=0; $i<$size; $i++)
+                    {
+                        $hue = round($i/$size, 2);
+                        echo "{";
+                            echo "x: ". $values[$i]['wind_direction'].",";
+                            echo "y: ". $values[$i]['wind_speed'].",";
+                            echo "marker: {";
+                                echo "fillColor: 'rgba(0,0,255," . $hue . ")',";
+                                echo "radius: " . round(($i+1)/$size ,2)*11;
+                            echo "}";
+                            
+                        echo "},";
+                    }
+                ?>
+                ],
+                
+                name: 'Windgeschwindigkeit (Durchschnitt)',
+                color: 'rgba(0,0,255, 1)',
+              
+                    marker: 
+                    {
+                        radius: 10,
+                        lineColor: '#ffffff',
+                        lineWidth: '0.8',
+                    }
             },
            
             
@@ -218,6 +227,8 @@ function write_windrose_javascript()
                     lineColor: '#ffffff',
                     
                     symbol: 'circle',
+                    
+                    
                 },
             }
         });
