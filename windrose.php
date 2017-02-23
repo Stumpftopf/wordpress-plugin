@@ -77,7 +77,7 @@ function write_windrose_javascript()
                             echo "y: ". $values[$i]['wind_speed'].",";
                             echo "marker: {";
                                 echo "fillColor: 'rgba(0,0,255," . $hue . ")',";
-                                echo "radius: " . round($i/$size ,2)*7;
+                                echo "radius: " . round(1-($i+1)/$size ,2)*7;
                             echo "}";
                             
                         echo "},";
@@ -108,7 +108,7 @@ function write_windrose_javascript()
                             echo "y: ". $values[$i]['wind_maxspeed'].",";
                             echo "marker: {";
                                 echo "fillColor: 'rgba(255,0,0," . $hue . ")',";
-                                echo "radius: " . round($i/$size,2)*4;
+                                echo "radius: " . round(1-($i+1)/$size ,2)*4;
                                 echo "}";
                         echo "},";
                         
