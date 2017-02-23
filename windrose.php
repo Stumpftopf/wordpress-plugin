@@ -137,9 +137,12 @@ function write_windrose_javascript()
                 text: 'Letzte <?php echo $num_minutes; ?> Minuten'
             },
             pane: {
-            
-            size: '85%'
-                
+           <?php
+	  if (wp_is_mobile())
+              echo "size: '85%'";
+          else 
+              echo "size: '100%'";
+           ?>
           
             },
            
