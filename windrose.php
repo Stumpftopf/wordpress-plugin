@@ -44,8 +44,9 @@ function enqeue_highcharts_scripts()
 function write_windrose_javascript()
 {
         global $wpdb;
-        $num_minutes = 20;
+        $num_minutes = 30;
         $query = 'SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 WHERE record_datetime >= NOW() - INTERVAL '.  $num_minutes .' Minute ORDER BY record_datetime DESC';
+        $query_debug = 'SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 ORDER BY record_datetime DESC LIMIT 0, '. $num_minutes; //use this when testing locally
         
         $values = $wpdb->get_results($query, "ARRAY_A");
               
@@ -55,88 +56,66 @@ function write_windrose_javascript()
         $yMax += $yMax/10;
         $yMax = intval($yMax);
         ?>
-    <script language="javascript">
-        
-        var windDirection, windSpeed, windGust, windDirectionJSON, windSpeedJSON, windGustJSON, windSpeedData;
-        windData = 
-        <?php
-        echo '"[';
-        for ($i=0; $i<count($values); $i++)
-        {
-            echo $values[$i]['wind_direction'];
-            if ($i<(count($values)-1))
-                    echo ',';
-
-        }
-        echo ']";';
-
-        ?>
-        
-        windSpeed = <?php
-        echo '"[';
-        for ($i=0; $i<count($values); $i++)
-        {
-            echo $values[$i]['wind_speed'];
-            if ($i<(count($values)-1))
-                    echo ',';
-
-        }
-        echo ']";';
-
-        ?>
-        
-        windGust = <?php
-        echo '"[';
-        for ($i=0; $i<count($values); $i++)
-        {
-            echo $values[$i]['wind_maxspeed'];
-            if ($i<(count($values)-1))
-                    echo ',';
-
-        }
-        echo ']";';
-
-        ?>
-        
-        windDirectionJSON = JSON.parse(windData);
-        windSpeedJSON = JSON.parse(windSpeed);
-        windGustJSON = JSON.parse(windGust);
-        windSpeedData = [];
-        windGustData = [];
-        
-        for (i = 0; i < windDirectionJSON.length; i++) 
-        {
-            windSpeedData.push([ windDirectionJSON[i], windSpeedJSON[i]]);
-            windGustData.push([ windDirectionJSON[i], windGustJSON[i]]);
-        }
-        console.log(windSpeedData);
-        console.log(windGustData);
-        //windSpeedData.sort(function(a,b) { return a[0] - b[0]; });
-    </script>
+  
 
     <script>
     jQuery(function () {
         var categories = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
         jQuery('#container').highcharts({
             series: [{
-                data: windSpeedData,
+                data:
+                [
+                <?php
+                    $size = count($values);
+                    if ($size <= 0)
+                        $size += 1; //divisions ahead
+                    for ($i=0; $i<$size; $i++)
+                    {
+                        $hue = 1 - round($i/$size, 2);
+                        echo "{";
+                            echo "x: ". $values[$i]['wind_direction'].",";
+                            echo "y: ". $values[$i]['wind_speed'].",";
+                            echo "marker: {";
+                                echo "fillColor: 'rgba(0,0,255," . $hue . ")',";
+                                echo "radius: " . round($i/$size ,2)*7;
+                            echo "}";
+                            
+                        echo "},";
+                    }
+                ?>
+                ],
                 name: 'Windgeschwindigkeit (Durchschnitt)',
-                color: 
-                {
-                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
-                    stops: 
-                    [
-                        [0, '#0000ff'],
-                        [1, '#f0f0f0']
-                    ],     
-                },
+                color: 'rgba(0,0,255, 1)',
+              
                     marker: 
                     {
-                        radius: 5
+                        radius: 10
                     }
             },
             {
-                data: windGustData,
+                data:
+                [
+                <?php
+                    $size = count($values);
+                    if ($size <= 0)
+                        $size += 1; //divisions ahead
+                    for ($i=0; $i<$size; $i++)
+                    {   
+                       
+                        $hue = 1 - round($i/$size, 2);
+                        echo "{";
+                            echo "x: ". $values[$i]['wind_direction'].",";
+                            echo "y: ". $values[$i]['wind_maxspeed'].",";
+                            echo "marker: {";
+                                echo "fillColor: 'rgba(255,0,0," . $hue . ")',";
+                                echo "radius: " . round($i/$size,2)*4;
+                                echo "}";
+                        echo "},";
+                        
+                    
+                    }
+                ?>
+                ],
                 name: "Windgeschwindigkeit (Böe)",
                 marker: 
                     {
@@ -144,15 +123,7 @@ function write_windrose_javascript()
                         symbol: "circle",
                         
                     },
-                color: 
-                {
-                    radialGradient: { cx: 0.5, cy: 0.5, r: 0.5 },
-                    stops: 
-                    [
-                       [0, '#f00000'],
-                       [1, '#ff0000']
-                    ]
-                },
+                color: 'rgba(255,0,0,1',
                 shadow: true, 
             },
            
@@ -241,6 +212,9 @@ function write_windrose_javascript()
                     showInLegend: true,
                     groupPadding: 0,
                     pointPlacement: 'on', 
+                    lineColor: '#ffffff',
+                    
+                    symbol: 'circle',
                 },
             }
         });
