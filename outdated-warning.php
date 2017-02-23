@@ -1,7 +1,6 @@
 <?php
 add_shortcode('warning-outdated', 'warning_outdated');
 
-
 function warning_outdated()
 {
     global $wpdb;

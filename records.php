@@ -11,7 +11,6 @@ add_shortcode('WindspeedLastTwoHours', 'MWS_120MAverage');
 //TODO parameter for # of records
 add_shortcode('lastrecords', 'lastTenRecords');
 
-
 function lastTenRecords()
 {
     global $wpdb;
@@ -91,16 +90,6 @@ function MWS_120MAverage()
     return $avg->value . " " . $avg->unit;
 }
 
-
-
-
-
-
-
-
-
-
-
 class MWS
 	
 {
@@ -129,10 +118,8 @@ class MWS
     {
         $this->record_type = $record_type;
         $this->unit = $unit;
-        
-    }
-
    
+    }   
 }
 
 class MWS_SingleValue extends MWS
@@ -266,10 +253,8 @@ class MWS_LastRecordsTable
                     
                     $h.= "<td>";
                    
-                    if (wp_is_mobile())
-                        $h.="vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.";
-                    else
-                        $h.=$time->format('m.d. H:i') . "<br />(vor ". floor((time() - $time->getTimestamp()) / 60) . " Minuten)";
+                    
+                    $h.=$time->format('d.m. H:i') . "<br />(vor ". floor((time() - $time->getTimestamp()) / 60) . " Min.)";
                 }
                 else
                 {
