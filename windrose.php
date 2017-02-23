@@ -44,8 +44,8 @@ function enqeue_highcharts_scripts()
 function write_windrose_javascript()
 {
         global $wpdb;
-        $num_records = 20;
-        $values = $wpdb->get_results("SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 ORDER BY record_datetime DESC LIMIT 0, " . $num_records . "", "ARRAY_A");
+        $num_minutes = 20;
+        $values = $wpdb->get_results("SELECT wind_speed, wind_maxspeed, wind_direction FROM wp_weather_merkur2 WHERE record_datetime > DATE_SUB (CURDATE(), INTERVAL " . $num_minutes . " MINUTE) ORDER BY record_datetime DESC", "ARRAY_A");
               
         $yMax =  max(array_column($values, 'wind_maxspeed'));
         if ($yMax == 0)
@@ -161,7 +161,7 @@ function write_windrose_javascript()
                 type: 'scatter'
             },
             title: {
-                text: 'Letzte <?php echo $num_records; ?> Minuten'
+                text: 'Letzte <?php echo $num_minutes; ?> Minuten'
             },
             pane: {
             
