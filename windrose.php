@@ -139,33 +139,10 @@ function write_windrose_javascript()
             
             ],
             chart: {
-          polar: true,
-          type: 'scatter',
-          events: {
-            load() {
-              const chart = this
-              const west = chart.plotBackground.renderer
-              const nordost = chart.plotBackground.renderer
-              const x = chart.plotLeft + (chart.plotWidth * 0.5)
-              const y = chart.plotTop + (chart.plotHeight * 0.5)
-
-              // Render our arc
-              west.arc(x, y, 0, 150, -0.75 * Math.PI, -0.375 * Math.PI).attr({
-                  fill: 'rgba(218,170,170,0.6)'
-                }).attr({
-                  'zIndex': 0
-                }).add(),
-
-                nordost.arc(x, y, 0, 150, -0.125 * Math.PI, 0.625 * Math.PI).attr({
-                  fill: 'rgba(218,170,170,0.6)'
-                }).attr({
-                  'zIndex': 0
-                }).add()
-
-            }
-          }
-        },
-        title: {
+                polar: true,
+                type: 'scatter'
+            },
+            title: {
                 text: 'Letzte <?php echo $num_minutes; ?> Minuten'
             },
             pane: {
