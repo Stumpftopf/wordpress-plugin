@@ -151,13 +151,13 @@ function write_windrose_javascript()
 
               // Render our arc
               west.arc(x, y, 0, 150, -0.75 * Math.PI, -0.375 * Math.PI).attr({
-                  fill: 'rgba(218,170,170,0.6)'
+                  fill: 'rgba(218,170,170,0.8)'
                 }).attr({
                   'zIndex': 0
                 }).add(),
 
                 nordost.arc(x, y, 0, 150, -0.125 * Math.PI, 0.625 * Math.PI).attr({
-                  fill: 'rgba(218,170,170,0.6)'
+                  fill: 'rgba(218,170,170,0.8)'
                 }).attr({
                   'zIndex': 0
                 }).add()
