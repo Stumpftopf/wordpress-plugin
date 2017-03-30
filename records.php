@@ -178,6 +178,7 @@ class MWS_LastRecordsTable
 
     public function buildHTML()
     {
+        date_default_timezone_set("Europe/Berlin");
         $h = '<table class="MWS_lastRecords">';
         $h.= "<tr>";
         foreach($this->columns as $header)
@@ -250,7 +251,8 @@ class MWS_LastRecordsTable
                     
                     if (date('I') == 0) 
                         $time->add(new DateInterval('PT1H'));
-                    
+                    else 
+                        $time->add(new DateInterval('PT2H'));	
                     $h.= "<td>";
                    
                     
