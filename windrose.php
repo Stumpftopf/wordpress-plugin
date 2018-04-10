@@ -141,9 +141,7 @@ function write_windrose_javascript()
             chart: {
                 polar: true,
                 type: 'scatter',
-                title:  {
-                    text: 'Windmessungen letzte <?php echo $num_minutes; ?> Minuten'
-                    },
+                
 		        events: 
 		        {
             		load() 
@@ -169,7 +167,12 @@ function write_windrose_javascript()
                   		}).add()
               
                     }
-                },
+                }
+             },
+             title:  {
+                    text: 'Windmessungen letzte <?php echo $num_minutes; ?> Minuten'
+             },
+                
           
             
 
