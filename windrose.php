@@ -141,32 +141,38 @@ function write_windrose_javascript()
             chart: {
                 polar: true,
                 type: 'scatter',
-		events: {
-            		load() {
-              		const chart = this
-              		const forbidden_top = chart.plotBackground.renderer
-              		const forbidden_bottom = chart.plotBackground.renderer
-              		const x = chart.plotLeft + (chart.plotWidth * 0.5)
-              		const y = chart.plotTop + (chart.plotHeight * 0.5)
+                title:  {
+                    text: 'Windmessungen letzte <?php echo $num_minutes; ?> Minuten'
+                    },
+		        events: 
+		        {
+            		load() 
+            		{
+                  		const chart = this
+                  		const forbidden_top = chart.plotBackground.renderer
+                  		const forbidden_bottom = chart.plotBackground.renderer
+                  		const x = chart.plotLeft + (chart.plotWidth * 0.5)
+                  		const y = chart.plotTop + (chart.plotHeight * 0.5)
 							
-              // Render our arc
-              		forbidden_top.arc(x, y, 0, 150, -0.875*Math.PI,  -0.375*Math.PI).attr({
-                	fill: 'rgba(255,0,0,0.5)'
-              		}).attr({
-                	'zIndex': 0
-              		}).add()
-              		forbidden_bottom.arc(x, y, 0, 150, -0.120*Math.PI, 0.625*Math.PI).attr({
-                	fill: 'rgba(255,0,0,0.5)'
-              		}).attr({
-                	'zIndex': 0
-              		}).add()
+                  // Render our arc
+                  		forbidden_top.arc(x, y, 0, 150, -0.875*Math.PI,  -0.375*Math.PI).attr({
+                    	    fill: 'rgba(255,0,0,0.5)'
+                  		    }).attr({
+                    	    'zIndex': 0
+                  	    }).add()
+                  		
+                  		
+                  		forbidden_bottom.arc(x, y, 0, 150, -0.120*Math.PI, 0.625*Math.PI).attr({
+                    	    fill: 'rgba(255,0,0,0.5)'
+                  		    }).attr({
+                    	    'zIndex': 0
+                  		}).add()
               
-            }
+                    }
+                },
           
-            },
-            title: {
-                text: 'Letzte <?php echo $num_minutes; ?> Minuten'
-            },
+            
+
             pane: {
            <?php
 	  if (wp_is_mobile())
