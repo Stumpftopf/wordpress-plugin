@@ -153,7 +153,7 @@ function write_windrose_javascript()
                   		const y = chart.plotTop + (chart.plotHeight * 0.5)
 							
                   // Render our arc
-                  		forbidden_top.arc(x, y, 0, 115, -0.875*Math.PI,  -0.375*Math.PI).attr({
+                  		forbidden_top.arc(x, y, 0, 115, -0.750*Math.PI,  -0.375*Math.PI).attr({
                     	    fill: 'rgba(255,0,0,0.55)'
                   		    }).attr({
                     	    'zIndex': 0
