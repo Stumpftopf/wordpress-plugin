@@ -154,14 +154,14 @@ function write_windrose_javascript()
 							
                   // Render our arc
                   		forbidden_top.arc(x, y, 0, 115, -0.875*Math.PI,  -0.375*Math.PI).attr({
-                    	    fill: 'rgba(255,0,0,0.35)'
+                    	    fill: 'rgba(255,0,0,0.55)'
                   		    }).attr({
                     	    'zIndex': 0
                   	    }).add()
                   		
                   		
                   		forbidden_bottom.arc(x, y, 0, 115, -0.120*Math.PI, 0.625*Math.PI).attr({
-                    	    fill: 'rgba(255,0,0,0.35)'
+                    	    fill: 'rgba(255,0,0,0.55)'
                   		    }).attr({
                     	    'zIndex': 0
                   		}).add()
